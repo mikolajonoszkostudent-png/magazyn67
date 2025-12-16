@@ -2,8 +2,8 @@ import streamlit as st
 
 # --- Konfiguracja Strony ---
 st.set_page_config(
-    page_title="Świąteczna Lista Magazynowa",
-    layout="wide" # Używamy szerokiego układu, żeby kolumny miały miejsce
+    page_title="Lista Magazynowa (Mikołaj)",
+    layout="wide" # Używamy szerokiego układu
 )
 
 # --- Inicjalizacja Stanu Sesji ---
@@ -34,95 +34,96 @@ def remove_product(product_name):
 
 # --- INTERFEJS UŻYTKOWNIKA Z KOLUMNAMI ---
 
-# 1. Tworzymy dwie kolumny: 60% szerokości dla aplikacji, 40% dla dekoracji
-col_app, col_deco = st.columns([3, 2]) 
+# 1. Tworzymy dwie kolumny: Lewa (70%) dla aplikacji, Prawa (30%) dla Mikołaja
+col_app, col_deco = st.columns([7, 3]) 
 
 # =========================================================================
-# === KOLUMNA LEWA: APLIKACJA MAGAZYNOWA (60%) =============================
+# === KOLUMNA LEWA: APLIKACJA MAGAZYNOWA (70%) =============================
 # =========================================================================
 with col_app:
-    st.title("🎅 Lista Prezentów Mikołaja")
-    st.markdown("Świąteczna edycja prostej listy magazynowej. Dane są tymczasowe.")
+    st.title("🎁 Prosta Lista Magazynowa")
+    st.markdown("Dodawaj i usuwaj nazwy produktów. Dane są tymczasowe.")
 
     # Sekcja Dodawania Produktu
     with st.container(border=True):
-        st.subheader("🎁 Dodaj Prezent")
+        st.subheader("➕ Dodaj Produkt")
         
-        product_to_add = st.text_input("Nazwa nowego produktu/prezentu", key="add_input")
+        product_to_add = st.text_input("Nazwa nowego produktu", key="add_input")
         
         # Przycisk do dodawania
-        st.button("Dodaj do Listy", on_click=add_product, args=(product_to_add,))
+        st.button("Dodaj do Magazynu", on_click=add_product, args=(product_to_add,))
 
     st.markdown("---")
 
     # Sekcja Usuwania Produktu
     if st.session_state.inventory:
         with st.container(border=True):
-            st.subheader("❌ Usuń Prezent")
+            st.subheader("➖ Usuń Produkt")
             
             # Używamy selectbox do wyboru produktu do usunięcia
             product_to_remove = st.selectbox(
-                "Wybierz prezent do usunięcia", 
+                "Wybierz produkt do usunięcia", 
                 st.session_state.inventory,
-                key="remove_select" # Dodanie klucza dla unikalności
+                key="remove_select" 
             )
             
             # Przycisk do usuwania
-            st.button("Usuń z Listy", on_click=remove_product, args=(product_to_remove,))
+            st.button("Usuń z Magazynu", on_click=remove_product, args=(product_to_remove,))
     else:
-        st.info("Lista prezentów Mikołaja jest pusta.")
+        st.info("Magazyn jest pusty.")
 
     st.markdown("---")
 
     # Sekcja Wyświetlania Magazynu
-    st.subheader(f"📜 Aktualna Lista Prezentów ({len(st.session_state.inventory)})")
+    st.subheader(f"🗃️ Aktualny Magazyn ({len(st.session_state.inventory)})")
 
     if st.session_state.inventory:
-        # Wyświetlenie listy produktów
         for i, item in enumerate(st.session_state.inventory, 1):
             st.markdown(f"**{i}.** {item}")
     else:
-        st.info("Brak prezentów na liście. Dodaj pierwszy prezent powyżej.")
+        st.info("Brak produktów w magazynie. Dodaj pierwszy produkt powyżej.")
 
 # =========================================================================
-# === KOLUMNA PRAWA: DEKORACJE ŚWIĄTECZNE (40%) ============================
+# === KOLUMNA PRAWA: ŚWIĘTY MIKOŁAJ (30%) ==================================
 # =========================================================================
 with col_deco:
-    st.header(" ") # Pusty nagłówek dla wyrównania pionowego
+    st.header(" ") # Pusty nagłówek dla wyrównania
 
-    # 1. Święty Mikołaj
+    # Symulacja Mikołaja z liczbą 67 na brzuchu
     st.markdown(
         """
-        ### 🎅 Święty Mikołaj (Santa)
+        <style>
+        .santa-box {
+            background-color: #F0F2F6; /* Lekkie tło */
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+        .santa-icon {
+            font-size: 80px;
+            margin-bottom: -15px;
+        }
+        .santa-number {
+            font-size: 72px;
+            font-weight: bold;
+            color: white; /* Kolor liczby na "brzuchu" */
+            background-color: red; /* "Pas/Brzuch" Mikołaja */
+            padding: 10px 20px;
+            border-radius: 15px;
+            display: inline-block;
+            border: 5px solid white;
+        }
+        </style>
         
-        Mikołaj sprawdza listę! 📝
+        <div class="santa-box">
+            <span class="santa-icon">🎅</span>
+            <h3>Mikołaj Patroluje!</h3>
+            <span class="santa-number">67</span>
+            <p style='margin-top: 10px;'>Numer identyfikacyjny</p>
+        </div>
         """,
         unsafe_allow_html=True
     )
-    
-    # Można tutaj użyć obrazu, jeśli masz go w pliku (np. 'santa.png'):
-    # st.image("santa.png", caption="Kontrola Jakości Prezentów")
-    
-    # 2. Automaty do Gier (jako emotikony)
-    st.markdown("---")
-    st.markdown(
-        """
-        ### 🕹️ Automaty do Gier
-        
-        Prezenty z sekcji Gier i Rozrywki.
-        """,
-        unsafe_allow_html=True
-    )
-    
-    # Symulacja Automatów (użycie emotikon i kolumn wewnątrz kolumny głównej)
-    arcade_col1, arcade_col2, arcade_col3 = st.columns(3)
-    
-    with arcade_col1:
-        st.metric(label="Pac-Man", value="👾", delta="Retro")
-    with arcade_col2:
-        st.metric(label="Tetris", value="🧱", delta="Logika")
-    with arcade_col3:
-        st.metric(label="Pinball", value="🔵", delta="Zręczność")
-    
+
 # --- Stopka ---
-st.caption("Aplikacja działa w oparciu o pamięć sesji Streamlit.")
+st.caption("Aplikacja działa w oparciu o pamięć sesji Streamlit. Użyto HTML/CSS dla stylizacji Mikołaja.")
