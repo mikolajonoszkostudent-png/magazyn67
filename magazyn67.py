@@ -2,12 +2,11 @@ import streamlit as st
 
 # --- Konfiguracja Strony ---
 st.set_page_config(
-    page_title="Prosta Aplikacja Magazynowa",
-    layout="centered"
+    page_title="Świąteczna Lista Magazynowa",
+    layout="wide" # Używamy szerokiego układu, żeby kolumny miały miejsce
 )
 
 # --- Inicjalizacja Stanu Sesji ---
-# Inicjalizuje listę 'inventory' (magazyn), jeśli jeszcze nie istnieje w bieżącej sesji.
 if 'inventory' not in st.session_state:
     st.session_state.inventory = []
 
@@ -15,7 +14,7 @@ if 'inventory' not in st.session_state:
 
 def add_product(product_name):
     """Dodaje produkt do magazynu."""
-    # Upewnia się, że nazwa produktu nie jest pusta i dodaje ją.
+    product_name = product_name.strip()
     if product_name and product_name not in st.session_state.inventory:
         st.session_state.inventory.append(product_name)
         st.success(f"Dodano produkt: **{product_name}**")
@@ -26,58 +25,104 @@ def add_product(product_name):
 
 def remove_product(product_name):
     """Usuwa produkt z magazynu."""
-    # Usuwa produkt z listy, jeśli istnieje.
     try:
         st.session_state.inventory.remove(product_name)
         st.success(f"Usunięto produkt: **{product_name}**")
     except ValueError:
         st.error(f"Produkt **{product_name}** nie został znaleziony w magazynie.")
 
-# --- Interfejs Użytkownika Streamlit ---
 
-st.title("🛒 Prosta Lista Magazynowa")
-st.markdown("Dodawaj i usuwaj nazwy produktów. Dane nie są zapisywane.")
+# --- INTERFEJS UŻYTKOWNIKA Z KOLUMNAMI ---
 
-# Sekcja Dodawania Produktu
-with st.container(border=True):
-    st.subheader("➕ Dodaj Produkt")
-    
-    # Pole do wprowadzania nazwy produktu
-    product_to_add = st.text_input("Nazwa nowego produktu", key="add_input")
-    
-    # Przycisk do dodawania, który wywołuje funkcję add_product
-    # Używamy _product_to_add.strip() aby usunąć białe znaki i przekazać wartość
-    st.button("Dodaj do Magazynu", on_click=add_product, args=(product_to_add.strip(),))
+# 1. Tworzymy dwie kolumny: 60% szerokości dla aplikacji, 40% dla dekoracji
+col_app, col_deco = st.columns([3, 2]) 
 
-st.markdown("---")
+# =========================================================================
+# === KOLUMNA LEWA: APLIKACJA MAGAZYNOWA (60%) =============================
+# =========================================================================
+with col_app:
+    st.title("🎅 Lista Prezentów Mikołaja")
+    st.markdown("Świąteczna edycja prostej listy magazynowej. Dane są tymczasowe.")
 
-# Sekcja Usuwania Produktu
-if st.session_state.inventory:
+    # Sekcja Dodawania Produktu
     with st.container(border=True):
-        st.subheader("➖ Usuń Produkt")
+        st.subheader("🎁 Dodaj Prezent")
         
-        # Używamy selectbox do wyboru produktu do usunięcia
-        product_to_remove = st.selectbox(
-            "Wybierz produkt do usunięcia", 
-            st.session_state.inventory
-        )
+        product_to_add = st.text_input("Nazwa nowego produktu/prezentu", key="add_input")
         
-        # Przycisk do usuwania, który wywołuje funkcję remove_product
-        st.button("Usuń z Magazynu", on_click=remove_product, args=(product_to_remove,))
-else:
-    st.info("Magazyn jest pusty.")
+        # Przycisk do dodawania
+        st.button("Dodaj do Listy", on_click=add_product, args=(product_to_add,))
 
-st.markdown("---")
+    st.markdown("---")
 
-# Sekcja Wyświetlania Magazynu
-st.subheader(f"🗃️ Aktualny Magazyn ({len(st.session_state.inventory)})")
+    # Sekcja Usuwania Produktu
+    if st.session_state.inventory:
+        with st.container(border=True):
+            st.subheader("❌ Usuń Prezent")
+            
+            # Używamy selectbox do wyboru produktu do usunięcia
+            product_to_remove = st.selectbox(
+                "Wybierz prezent do usunięcia", 
+                st.session_state.inventory,
+                key="remove_select" # Dodanie klucza dla unikalności
+            )
+            
+            # Przycisk do usuwania
+            st.button("Usuń z Listy", on_click=remove_product, args=(product_to_remove,))
+    else:
+        st.info("Lista prezentów Mikołaja jest pusta.")
 
-if st.session_state.inventory:
-    # Wyświetlenie listy produktów jako lista punktowana
-    for i, item in enumerate(st.session_state.inventory, 1):
-        st.markdown(f"**{i}.** {item}")
-else:
-    st.info("Brak produktów w magazynie. Dodaj pierwszy produkt powyżej.")
+    st.markdown("---")
 
-# Stopka
+    # Sekcja Wyświetlania Magazynu
+    st.subheader(f"📜 Aktualna Lista Prezentów ({len(st.session_state.inventory)})")
+
+    if st.session_state.inventory:
+        # Wyświetlenie listy produktów
+        for i, item in enumerate(st.session_state.inventory, 1):
+            st.markdown(f"**{i}.** {item}")
+    else:
+        st.info("Brak prezentów na liście. Dodaj pierwszy prezent powyżej.")
+
+# =========================================================================
+# === KOLUMNA PRAWA: DEKORACJE ŚWIĄTECZNE (40%) ============================
+# =========================================================================
+with col_deco:
+    st.header(" ") # Pusty nagłówek dla wyrównania pionowego
+
+    # 1. Święty Mikołaj
+    st.markdown(
+        """
+        ### 🎅 Święty Mikołaj (Santa)
+        
+        Mikołaj sprawdza listę! 📝
+        """,
+        unsafe_allow_html=True
+    )
+    
+    # Można tutaj użyć obrazu, jeśli masz go w pliku (np. 'santa.png'):
+    # st.image("santa.png", caption="Kontrola Jakości Prezentów")
+    
+    # 2. Automaty do Gier (jako emotikony)
+    st.markdown("---")
+    st.markdown(
+        """
+        ### 🕹️ Automaty do Gier
+        
+        Prezenty z sekcji Gier i Rozrywki.
+        """,
+        unsafe_allow_html=True
+    )
+    
+    # Symulacja Automatów (użycie emotikon i kolumn wewnątrz kolumny głównej)
+    arcade_col1, arcade_col2, arcade_col3 = st.columns(3)
+    
+    with arcade_col1:
+        st.metric(label="Pac-Man", value="👾", delta="Retro")
+    with arcade_col2:
+        st.metric(label="Tetris", value="🧱", delta="Logika")
+    with arcade_col3:
+        st.metric(label="Pinball", value="🔵", delta="Zręczność")
+    
+# --- Stopka ---
 st.caption("Aplikacja działa w oparciu o pamięć sesji Streamlit.")
